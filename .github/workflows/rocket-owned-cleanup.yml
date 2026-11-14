@@ -7,7 +7,8 @@
           "type": "choice",
           "options": [
             "verify",
-            "monitor"
+            "monitor",
+            "alarm-check"
           ],
           "default": "verify",
           "required": true
@@ -50,6 +51,18 @@
           "name": "Independent failure signal",
           "if": "${{ failure() }}",
           "run": "echo '::error title=Rocket cleanup failure::Order gate CLOSED. Independent controller check failed; inspect this run before ordering.'\nexit 1"
+        }
+      ],
+      "if": "${{ inputs.mode != 'alarm-check' }}"
+    },
+    "alarm-check": {
+      "if": "${{ inputs.mode == 'alarm-check' }}",
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 2,
+      "steps": [
+        {
+          "name": "Controlled independent alarm test - expected failure",
+          "run": "echo '::error title=Controlled cleanup alarm test::EXPECTED TEST FAILURE. No resources created, queried, or deleted. Verify existing GitHub and email notification delivery.'\nexit 1"
         }
       ]
     }
